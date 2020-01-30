@@ -18,14 +18,14 @@ class Usuarios {
     }
 
 
-    buscarPosEmail(email){
+    buscarPorEmail(email){
         return new Promise((resolve,reject) => {
             const sql = 'SELECT * FROM usuarios WHERE email = ?'
 
             conexao.query(sql, email,(erro,retorno) =>{
                 if(erro) reject('erro ao consultar cadastro' + erro)
                 else 
-                    resolve(retorno)
+                    resolve(retorno[0])
             })
         })
     }
