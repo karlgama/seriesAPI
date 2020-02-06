@@ -3,9 +3,9 @@ const serieDAO = new (require('../models/Series'))()
 module.exports = {
 
     async listar(req,res) {
-            const lista = await serieDAO.lista()
+            const lista = await serieDAO.listar()
             
-            if(lista.isEmpty) 
+            if(lista) 
                 return res.send(lista)
 
             return res.status(404).send({erro:"lista vazia"}) 
@@ -26,7 +26,8 @@ module.exports = {
     async buscaPorId(req,res) {
         const id = req.params.id;
 
-        const serie = await serieDAO.buscaPorId(id)
+        let serie = await serieDAO.buscaPorId(id)
+        serie = serie[0]
 
         if(!serie)
             return res.status(404).send({erro:'série não encontrada'})

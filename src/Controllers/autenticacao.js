@@ -1,8 +1,8 @@
 const {  validationResult } = require('express-validator')
-const UsuarioValidator = require('../validators/Usuario')
+const usuarioDAO =  new (require('../models/Usuarios'))()
 const jwt = require('jsonwebtoken')
-
 const authConfig = require('../config/auth')
+const bcrypt = require('bcryptjs')
 
 gerarToken = (params) => {
     return jwt.sign(params, authConfig.secret, {
@@ -10,51 +10,51 @@ gerarToken = (params) => {
     })
 }
 
-autenticacao = (app) => {
-    app.post('/registrar',
-        UsuarioValidator.validacoes(),
-        (req,res)=> {
-        const erros = validationResult(req)
+module.exports = {
 
-        if(!erros.isEmpty()) {
-            res.status(400).send(erros)
-            return
-        }
-
-        const usuario = req.body
-
-        usuarioDAO = app.models.Usuarios
+    async registra(req,res) {
         
-        usuarioDAO.insere(usuario)
-            .then(usuario => {
-                const token =gerarToken({id: usuario.id})
-                res.status(201).send({usuario, token})
-            })
-            .catch(erro => res.status(500).send(erro))
-    
-    })
-    app.post('/autenticar',async (req,res)=>{
+        const erros = validationResult(req)
+        
+        if(!erros.isEmpty()) 
+            return res.status(400).send(erros)
+            
+        let usuario = req.body        
+        
+        try {
+        usuario.senha = await bcrypt.hash(usuario.senha, 10)
+        const resultado = await usuarioDAO.insere(usuario)
+        usuario = { id:resultado.insertId, ...usuario }
+        console.log(usuario)
+        res.status(201).send({ 
+            usuario,
+            token:gerarToken({id: usuario.id})
+        })
+        }catch(erro) {
+            return res.status(500).send(erro)
+        }
+    },
+
+    async autentica(req,res) {
         const { email, senha} = req.body
 
-        try{
-        usuarioDAO = app.models.Usuarios
-        const usuario = await usuarioDAO.buscarPorEmail(email)
-        
+        try {
+            let usuario = await usuarioDAO.buscarPorEmail(email)
+            usuario = usuario[0]
         if(!usuario)
             return res.status(400).send({erro: 'usuário não cadastrado'})    
 
-            if(usuario.senha !== senha)
-            return res.status(400).send({erro: 'Senha inválida'})
+            if(!await bcrypt.compare(senha, usuario.senha))
+                return res.status(400).send({erro: 'Senha inválida'})
 
-            const token = gerarToken({id: usuario.id})
+            
 
-            res.send({usuario,token})
+            res.send({usuario,token: gerarToken({id: usuario.id})})
 
         }catch(erro) {
             console.log(erro)
             res.status(500).send(erro)
         }
-    })
+    }
 }
 
-module.exports = autenticacao

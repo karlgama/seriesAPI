@@ -2,7 +2,7 @@ const baseQuery = require('./baseQuery');
 
 class Series {
     
-    lista() {
+    listar() {
         return baseQuery('select * from series')
     }
 
