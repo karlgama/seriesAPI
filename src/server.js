@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const authMidd = require('./middleware/auth')
 
 app.use(express.json())
 
@@ -16,6 +17,7 @@ const auth = require('./routes/authRoutes')
 const series = require('./routes/seriesRoutes')
 
 app.use('/auth', auth)
+app.use(authMidd)
 app.use('/series', series)
 
 module.exports = app
