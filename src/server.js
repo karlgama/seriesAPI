@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const authMidd = require('./middleware/auth')
 
+/*app é uma instância do express e use
+é uma função de app para utilizar middlewares */
 app.use(express.json())
 
 let allowCrossDomain = (req,res, next) => {
