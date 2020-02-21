@@ -3,12 +3,14 @@ const serieDAO = new (require('../models/Series'))()
 module.exports = {
 
     async listar(req,res) {
-            const lista = await serieDAO.listar()
-            
+        try{
+            const lista = await serieDAO.listar()            
             if(lista) 
                 return res.send(lista)
-
             return res.status(404).send({erro:"lista vazia"}) 
+        }catch(erro) {
+            return res.send(erro)
+        }
     },
 
     async insere(req,res) {

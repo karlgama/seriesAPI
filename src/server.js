@@ -1,19 +1,20 @@
 const express = require('express')
 const app = express()
 const authMidd = require('./middleware/auth')
+const cors = require('cors')
 
 /*app é uma instância do express e use
 é uma função de app para utilizar middlewares */
 app.use(express.json())
+app.use(cors())
+// let allowCrossDomain = (req,res, next) => {
+//     res.header('Access-Control-Allow-Origin','*')
+//     res.header('Access-Control-Allow-Headers','*')
+//     res.header('Access-Control-Allow-Methods','*')
+//     next()
+// }
 
-let allowCrossDomain = (req,res, next) => {
-    res.header('Access-Control-Allow-Origin','*')
-    res.header('Access-Control-Allow-Headers','*')
-    res.header('Access-Control-Allow-Methods','*')
-    next()
-}
-
-app.use(allowCrossDomain)
+// app.use(allowCrossDomain)
 
 const auth = require('./routes/authRoutes')
 const series = require('./routes/seriesRoutes')
